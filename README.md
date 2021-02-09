@@ -34,10 +34,21 @@ You will need to adjust the settings of your Docker Desktop to ensure that the k
 
 Go ahead and start Docker Desktop if you haven't already.
 
-From the menu select *Preferences*.
+From the menu select **Preferences**.
 
-Go to the *Resources* section to adjust the CPU and Memory allocated to containers from your laptop. I would recommend adjusting the values to be at least 4 cores for CPUs and 8GB for Memory. You can go higher if you wish but these values should be sufficient for most local development needs.
+Go to the **Resources** section to adjust the CPU and Memory allocated to containers from your laptop. I would recommend adjusting the values to be at least 4 cores for CPUs and 8GB for Memory. You can go higher if you wish but these values should be sufficient for most local development needs.
 
 ![Docker Desktop Preferences](/images/docker-preferences.png)
 
-Click *Apply & Restart* button.
+Click **Apply & Restart** button.
+
+# Create a multi-node cluster
+I'm going to walk you through creating a simple three node cluster with a non-HA control node.
+Kind uses a simple YAML file to describe the cluster. I'm not going to walk you through every setting but I will explain some key points that you will want to use.
+
+You can kick off the creation now and then read about the key points in the sections that follow.
+
+```
+kind create cluster --name xl-cluster --config https://raw.githubusercontent.com/dcberg/kind/main/scripts/xl-cluster.yaml
+```
+This script will create a three node cluster. 
