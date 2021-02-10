@@ -42,14 +42,25 @@ Go to the **Resources** section to adjust the CPU and Memory allocated to contai
 
 Click **Apply & Restart** button.
 
+## Setup Lens
+Lens is a nice graphical tool for accessing, inspecting, and debugging your clusters. Lens exercises kubectl commands under the covers but it allows novice users to easily explore and access information about resources in the cluster. Lens also allows expert users to be more efficient when working with clusters.
+
+You can install Lens directly from the [Lens Development site](https://k8slens.dev/). Simply click on the **Download** button and select the archive for your operating system. Unzip the archive and execute the install to have Lens installed on your system.
+
 # Create a multi-node cluster
 I'm going to walk you through creating a simple three node cluster with a non-HA control node.
 Kind uses a simple YAML file to describe the cluster. I'm not going to walk you through every setting but I will explain some key points that you will want to use.
 
+First ensure that you clone this repository and `cd` into the root directory from a terminal session.
+
+```
+git clone git@github.com:dcberg/kind.git
+```
+
 You can kick off the creation now and then read about the key points in the sections that follow.
 
 ```
-kind create cluster --name xl-cluster --config https://raw.githubusercontent.com/dcberg/kind/main/scripts/xl-cluster.yaml
+kind create cluster --name test --config scripts/cluster-3.yaml
 ```
 This script will create a three node Kube 1.19 cluster. There is a single control node identified by the `control-plane` role and the version is controlled by the container image that is used. In this case the 1.19 node image is used. You can find the full list of container node images in the [release notes](https://github.com/kubernetes-sigs/kind/releases).
 
@@ -81,4 +92,84 @@ To allow ingress to work within a local Kind cluster, it is necessary to select 
     listenAddress: "127.0.0.1"
     protocol: TCP
  ```
+You can validate that the cluster was created successfully.
+
+```
+kind get clusters
+```
+will list the `test` cluster that you just created. You can get the list of nodes for the cluster as well.
+
+```
+kind get nodes --name test
+```
+
+```
+test-worker2
+test-control-plane
+test-worker3
+test-worker
+```
+
+After creating a Kind cluster, the kubernetes context is automatically set to the new cluster. You can confirm this by running the following command.
+
+```
+kubectl cluster-info --context kind-test
+```
+You should see a result similar to mine.
+
+```
+Kubernetes control plane is running at https://127.0.0.1:53759
+KubeDNS is running at https://127.0.0.1:53759/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+```
+
+You can now run kubectl commands. Try getting the nodes.
+
+```
+kubectl get nodes
+```
+
+```
+NAME                 STATUS   ROLES    AGE     VERSION
+test-control-plane   Ready    master   9m11s   v1.19.1
+test-worker          Ready    <none>   8m40s   v1.19.1
+test-worker2         Ready    <none>   8m40s   v1.19.1
+test-worker3         Ready    <none>   8m40s   v1.19.1
+```
+
+# Access your cluster with Lens
+Launch Lens if you haven't already. Lens will open with no clusters connected. 
+
+## Configure connection to cluster
+Click on the **+** button to configure a new connection to your kind cluster.
+
+By default Lens will read your system kubeconfig file and automatically detect the new **kind-test** cluster that you created. If you have additional clusters on your system, you may need to select the **kind-test** context from the drop down menu.
+
+![Lens cluster connection](/images/lens-cluster-connection.png)
+
+Lens will now connect to your cluster and you can explore a bit to ensure that resource information is properly being read (e.g., click on **Nodes** to see the three worker nodes).
+
+## Configure metrics collection
+If you select on the **Cluster** section in the left menu you will see messages indicating that metrics are not available because Prometheus has not been setup. You could manually setup Prometheus yourself or you can let Lens do it for you. Having metrics available directly in Lens is helpful for debugging memory leaks as well as setting up proper resource requests and limits for your containers.
+
+Right click on the image of your cluster in the far left navigation and select **Settings**
+
+Scroll to the bottom of the Settings page to the *Features* section and click on the **Install** button for the *Metrics Stack*. This will setup a prometheus instance within your cluster.
+
+![Lens prometheus install](/images/lens-prometheus.png)
+
+You will need to wait a few minutes while the install is completing and for metrics to be gathered for the cluster. Close the settings page. You should now be on the main Cluster page and you should start to see cluster wide metrics.
+
+![Cluster metrics](/images/lens-cluster-metrics.png)
+
+If you navigate to the **Pods** section under **Workloads** you will see metrics per pod as well.
+
+![Pod memory](/images/lens-pod-memory.png)
+
+## Install and Configure Ingress
+You now have a basic three node cluster with metrics gathering. Now we want to be able to deploy and access services. We will do that through an [ingress controller](https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/) in the cluster. We will be using the kubernetes community nginx ingress controller.
+
+From your terminal session, execute the following command to install the nginx ingress controller into your cluster.
+
 
