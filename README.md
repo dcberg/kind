@@ -172,4 +172,70 @@ You now have a basic three node cluster with metrics gathering. Now we want to b
 
 From your terminal session, execute the following command to install the nginx ingress controller into your cluster.
 
+```
+kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
 
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+```
+The config file is specifically designed for kind clusters to ensure that the ingress controller is deployed onto the node that you have labelled as `ingress-ready=true`. This is important within the kind environment and Docker Desktop so that we can access the services from your local host.
+
+As a side note, Lens will update showing you the deployments that are taking place. For example you can see the pending deployments on the main **Workloads** page.
+
+![Lens workloads](/images/lens-ingress-deploy.png)
+
+Let's deploy a simple hello-world service into the cluster for testing purposes.
+
+```
+kubectl run hello \
+  --expose \
+  --image nginxdemos/hello:plain-text \
+  --port 80
+```
+We will now configure an ingress resource that will allow us to access the hello service using a URL and our nginx ingress controller.
+
+```
+k apply -f - <<EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello
+spec:
+  rules:
+    - host: hello.test.com
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+              service:
+                name: hello
+                port:
+                  number: 80
+EOF
+```
+
+I have defined a `host` value of `hello.test.com`. Obviously this domain name is not resolvable on the internet so we need to adjust our local system to allow this domain to be resolved locally. To do this you will need to edit your local `/etc/hosts` file and add the following line.
+
+```
+127.0.0.1   hello.test.com\
+```
+Note, we are using the localhost address which is the same as the listenAddress that we included in the kind cluster config for worker node that is hosting the ingress controller. Hopefully this is all making sense now.
+
+From your terminal (or web browser), you should be able to access the service.
+
+```
+curl hello.test.com
+```
+
+```
+Server address: 10.244.1.5:80
+Server name: hello
+Date: 10/Feb/2021:16:47:27 +0000
+URI: /
+Request ID: 50eec66a0f425819257a1190a1cb1ab7
+```
+
+CONGRATULATIONS!!!
+You have successfully setup and configured a local kubernetes environment. You can now explore, deploy, and configure additional resources in our cluster to your heart's content.
