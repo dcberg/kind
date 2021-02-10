@@ -21,22 +21,7 @@ nodes:
     hostPort: 443
     listenAddress: "127.0.0.1"
     protocol: TCP
-  extraMounts:
-  - hostPath: xl-clusters-mount/reports-dir
-    containerPath: /opt/xebialabs/xl-release-server/reports
-  - hostPath: xl-clusters-mount/data
-    containerPath: /opt/xebialabs/xl-release-server/data
 - role: worker
   image: kindest/node:v1.19.1@sha256:98cf5288864662e37115e362b23e4369c8c4a408f99cbc06e58ac30ddc721600
-  extraMounts:
-  - hostPath: xl-clusters-mount/reports-dir
-    containerPath: /opt/xebialabs/xl-release-server/reports
-  - hostPath: xl-clusters-mount/data
-    containerPath: /opt/xebialabs/xl-release-server/data
 - role: worker
   image: kindest/node:v1.19.1@sha256:98cf5288864662e37115e362b23e4369c8c4a408f99cbc06e58ac30ddc721600
-  extraMounts:
-  - hostPath: xl-clusters-mount/reports-dir
-    containerPath: /opt/xebialabs/xl-release-server/reports
-  - hostPath: xl-clusters-mount/data
-    containerPath: /opt/xebialabs/xl-release-server/data
