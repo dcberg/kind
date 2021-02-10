@@ -11,6 +11,20 @@ Kind runs Kubernetes nodes as containers; therefore, you must have [Docker Deskt
 
 Following the instructions [here](https://hub.docker.com/editions/community/docker-ce-desktop-mac) to install Docker Desktop for Mac. Nothing difficult, just follow the instructions.
 
+### Configure Docker Desktop
+You will need to adjust the settings of your Docker Desktop to ensure that the kubernetes clusters work well. 
+
+Go ahead and start Docker Desktop if you haven't already.
+
+From the menu select **Preferences**.
+
+Go to the **Resources** section to adjust the CPU and Memory allocated to containers from your laptop. I would recommend adjusting the values to be at least 4 cores for CPUs and 8GB for Memory. You can go higher if you wish but these values should be sufficient for most local development needs.
+
+![Docker Desktop Preferences](/images/docker-preferences.png)
+
+Click **Apply & Restart** button.
+
+
 ## Kubernetes CLI
 You must have the Kubernetes CLI installed. Not absolutely necessary to run Kind but, let's face it, you will be using Kubernetes so you need the CLI installed.
 
@@ -28,19 +42,6 @@ You will obviously need Kind installed as well.
 brew install kind
 ```
 Addtional installation options can be found [here](https://kind.sigs.k8s.io/docs/user/quick-start/#installation).
-
-# Configure Docker Desktop
-You will need to adjust the settings of your Docker Desktop to ensure that the kubernetes clusters work well. 
-
-Go ahead and start Docker Desktop if you haven't already.
-
-From the menu select **Preferences**.
-
-Go to the **Resources** section to adjust the CPU and Memory allocated to containers from your laptop. I would recommend adjusting the values to be at least 4 cores for CPUs and 8GB for Memory. You can go higher if you wish but these values should be sufficient for most local development needs.
-
-![Docker Desktop Preferences](/images/docker-preferences.png)
-
-Click **Apply & Restart** button.
 
 ## Setup Lens
 Lens is a nice graphical tool for accessing, inspecting, and debugging your clusters. Lens exercises kubectl commands under the covers but it allows novice users to easily explore and access information about resources in the cluster. Lens also allows expert users to be more efficient when working with clusters.
