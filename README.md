@@ -220,7 +220,7 @@ EOF
 I have defined a `host` value of `hello.test.com`. Obviously this domain name is not resolvable on the internet so we need to adjust our local system to allow this domain to be resolved locally. To do this you will need to edit your local `/etc/hosts` file and add the following line.
 
 ```
-127.0.0.1   hello.test.com\
+127.0.0.1   hello.test.com
 ```
 Note, we are using the localhost address which is the same as the listenAddress that we included in the kind cluster config for worker node that is hosting the ingress controller. Hopefully this is all making sense now.
 
