@@ -9,7 +9,7 @@ There are some tools that you will need to setup prior to configuring your Kind 
 ## Docker Desktop
 Kind runs Kubernetes nodes as containers; therefore, you must have [Docker Desktop](https://hub.docker.com/editions/community/docker-ce-desktop-mac) installed. 
 
-Following the instructions [here](https://hub.docker.com/editions/community/docker-ce-desktop-mac) to install Docker Desktop for Mac. Nothing difficult, just follow the instructions.
+Follow the instructions [here](https://hub.docker.com/editions/community/docker-ce-desktop-mac) to install Docker Desktop for Mac. Nothing difficult, just follow the instructions.
 
 ### Configure Docker Desktop
 You will need to adjust the settings of your Docker Desktop to ensure that the kubernetes clusters work well. 
