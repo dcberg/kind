@@ -1,5 +1,5 @@
 # Local Kind Kuberentes Environment
-It's important to be able to development and test against a Kubneretes cluster which you can setup and manage locally on your laptop. My personally favorite tool is to use [Kind](https://kind.sigs.k8s.io/) to setup a multi-node Kubernetes cluster locally. This repository contains documentation and resources to help one construct a Kind environment that actually works on their laptop including proper ingress support. 
+It's important to be able to development and test against a Kubneretes cluster which you can setup and manage locally on your laptop. My personal favorite tool is to use [Kind](https://kind.sigs.k8s.io/) to setup a multi-node Kubernetes cluster locally. This repository contains documentation and resources to help one construct a Kind environment that actually works on their laptop including proper ingress support. 
 
 Note, the instructions in this respository assume you are using a Mac for development. Variations may exist if you use Linux or Windows.
 
