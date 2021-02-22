@@ -238,5 +238,120 @@ URI: /
 Request ID: 50eec66a0f425819257a1190a1cb1ab7
 ```
 
-CONGRATULATIONS!!!
+# Kind Setup for Dynamic Local Code Changes
+The previous sections describe how to setup a Kind environment using container images that you have built and deployed. This is useful for testing a build or other packaged solutions within a local Kubernetes environment. However, there are times that you would like to have a highly dynamic development environment where you  change code and see the changes immediately appear within your Kubernetes environment. The following instructions will show you how to setup a dynamic local development environment using a Kind cluster.
+
+## Create a local development cluster
+We will be using a very simple `Hello World` example to demonstrate how to setup and use a local kubernetes environment that is directly mounting a development directory.
+
+First ensure that you have deleted any existing clusters. You can check for existing clusters using the `get` command.
+
+```
+kind get clusters
+```
+
+If you have a cluster from previously, delete it using the following delete command.
+
+```
+kind delete cluster --name test
+```
+
+We will create a new cluster that leverages the `extraMounts` feature in Kind. Let's start by creating a new cluster for our Hello World example. Create a new local cluster starting from the root of of the `kind` repository.
+
+```
+kind create cluster --name hello --config scripts/cluster-3-local.yaml
+```
+
+Let's take a closer look at what is happening behind the scenes. The configuration file is creating the same three node cluster with the exception that we are adding a mount to a directory on the local host machine. This is done by adding an `extraMounts` section to each of the worker nodes. You need to ensure that you add this section to each worker to ensure that when a pod is scheduled to any of the worker nodes that it has access to this local host directory.
+
+```
+extraMounts:
+    # Set the hostPath to a path on your local system (can be relative).
+  - hostPath: hello
+    # This is the path to be exposed within the container nodes.
+    containerPath: /kind/apps/hello
+```
+
+The `hostPath` is the directory on your local machine where you have your code that you want to make changes and run within the containers.
+The `containerPath` is the path that will be mounted within worker node container. From the point of view of the kubernetes pods that you are deploying, this path will be the host path on the node.
+
+## Deploy nginx ingress controller
+Execute the following command to install the nginx ingress controller.
+
+```
+kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
+
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=90s
+```
+
+## Build the hello world image
+Next we will build the image that will be used for testing the hello world application.
+
+```
+docker build -t kind/hello-py:latest ./hello
+```
+
+If you look into the Dockerfile, you will see on line 4 that the working directory is switched to `/hello`. This is where we will have the python code for our application. Line 9 has been commented out because it is not necessary to copy the `hello-world.py` file into the image since we will be mounting the directory with the code (i.e., we are not copying the code directly into this dev image).
+
+Once the image is built, you need to load the image into the kind cluster so it can be deployed.
+
+```
+kind load docker-image kind/hello-py:latest --name hello
+```
+
+## Deploy Deploy the hello world example
+You can now deploy the hello world example within your local cluster. From the `kind` directory, execute the following command:
+
+```
+kubectl apply -f hello/hello-svc.yaml
+```
+Let's exam the kubernetes yaml file to see how everything is setup to make the magic work.
+Open thge `hello/hello-svc.yaml` file.
+
+Line 19 captures the image `kind/hello-py:latest` (just built and loaded into the cluster) that will be deployed in the cluster.
+
+Line 23 shows where we are mounting the directory where the source code resides. The `mountPath` must match the WORKDIR used in the Dockerfile.
+
+```
+volumeMounts:
+- mountPath: /hello
+  name: hello-volume
+```
+The `volumeMount` must match a `volume` entry defined within the cluster namespace by the same name (`hello-volume`). Line 26 defines the `hello-volume` volume details. Note that the `hostPath` of the volume must match the `containerPath` defined in the kind cluster configuratiomn for the `extraMounts`. In this case the value is `/kind/apps/hello` as this is the path that will be on the worker node.
+
+```
+volumes:
+- name: hello-volume
+  hostPath:
+    # Directory path from the containerPath in the Kind extraMounts section
+    path: /kind/apps/hello
+```
+
+That's the secret sauce for getting the proper volume mounts needed to access source code files directly on your local machine from within the container in the kind cluster.
+
+## Testing hello world
+If you still have `hello.test.com` in your hosts file then you can curl the end point to see the message from your deployment.
+
+```
+curl hello.test.com
+
+Hello, World!
+```
+Now open `/hello/hello-world.py` in a code editor.
+On line 8, change the message to something different such as `Hello Everyone!`.
+Save your editor and run the curl command again.
+
+```
+curl hello.test.com
+
+Hello Everyonbe!
+```
+
+Since the container deployment is mounting your local drive, you are able to make changes directly to your source code without building and redeploying your container(s).
+
+
+# CONGRATULATIONS!!!
 You have successfully setup and configured a local kubernetes environment. You can now explore, deploy, and configure additional resources in our cluster to your heart's content.
