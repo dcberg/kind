@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world
+  labels:
+    app: hello-py
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-py
+  template:
+    metadata:
+      labels:
+        app: hello-py
+    spec:
+      containers:
+      - name: hello-py
+        image: kind/hello-py:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /hello
+          name: hello-volume
+      volumes:
+      - name: hello-volume
+        hostPath:
+          # Directory path from the containerPath in the Kind extraMounts section
+          path: /kind/apps/hello
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-service
+spec:
+  selector:
+    app: hello-py
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-py-ingress
+spec:
+  rules:
+  - host: "hello.test.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: hello-service
+            port:
+              number: 80
