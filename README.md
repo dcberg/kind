@@ -256,7 +256,15 @@ If you have a cluster from previously, delete it using the following delete comm
 kind delete cluster --name test
 ```
 
-We will create a new cluster that leverages the `extraMounts` feature in Kind. Let's start by creating a new cluster for our Hello World example. Create a new local cluster starting from the root of of the `kind` repository.
+We will create a new cluster that leverages the `extraMounts` feature in Kind to mount a directory on your local machine. Before we can do this we need to ensure that Docker Desktop is configured with the proper rights to mount your local drive. 
+
+Open the Docker Desktop `Preferences`. 
+Select `Resources > FILE SHARING`. These are the directories that Docker has the rights to mount. When we create the kind cluster, we will mount a directory that must be either listed directly here or a subdirectory of a directory listed here. In my example I have added `/Users/dberg/development/github` which is the root directory where I clone git repositories. This allows me to mount any directory under the `github` root directory. You will need to do something similar on your local system.
+Note, if you are not using Docker Desktop then you will likely need to configure a similar preference using the Docker Engine directly.
+
+![Docker Desktop File Sharing](/images/docker-desktop-resources.png)
+
+With Docker Desktop configured, you can now create new cluster for our Hello World example. Create a new local cluster starting from the root of of the `kind` repository.
 
 ```
 kind create cluster --name hello --config scripts/cluster-3-local.yaml
