@@ -166,6 +166,13 @@ You will need to wait a few minutes while the install is completing and for metr
 
 If you navigate to the **Pods** section under **Workloads** you will see metrics per pod as well.
 
+## Configure Kubernetes metrics server
+If you plan to test a horizontal pod autoscaler or to check the resource consumption of a pod or node, you will need the Kubernetes metrics server. The server is not installed by default. You can use the following command to install the metrics server.
+
+```
+kubectl apply -f scripts/metrics-server-components.yaml
+```
+
 ![Pod memory](/images/lens-pod-memory.png)
 
 ## Install and Configure Ingress
