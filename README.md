@@ -205,7 +205,7 @@ kubectl run hello \
 We will now configure an ingress resource that will allow us to access the hello service using a URL and our nginx ingress controller.
 
 ```
-k apply -f - <<EOF
+kubectl apply -f - <<EOF
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
