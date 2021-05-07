@@ -317,7 +317,7 @@ Once the image is built, you need to load the image into the kind cluster so it 
 kind load docker-image kind/hello-py:latest --name hello
 ```
 
-## Deploy Deploy the hello world example
+## Deploy the hello world example
 You can now deploy the hello world example within your local cluster. From the `kind` directory, execute the following command:
 
 ```
